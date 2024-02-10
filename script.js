@@ -62,10 +62,8 @@ const performMove = function (caster, target, type) {
 };
 let choiceText = "";
 const option = function (choices) {
-  console.log(choices);
   choiceText = "";
   for (let i = 0; i < choices.length; i++) {
-    console.log(choices.length);
     choiceText += ` ${i + 1}) ${choices[i].name}`;
     if (choices[i].isAttack == true) {
       choiceText += `(${choices[i].dmg} Dmg)`;
@@ -74,11 +72,17 @@ const option = function (choices) {
       choiceText += `(${choices[i].heal} HP)`;
     }
   }
-  let input = prompt(`${choiceText}`);
-  if (choices && input <= choices.length) {
-    let target = prompt(`Target(${targets})`);
-    console.log(target);
-    performMove(hero, targets[target] - 1, choices[input - 1]);
+  let input = parseInt(prompt(`${choiceText}`));
+  console.log(Number.isInteger(input));
+
+  if (input <= choices.length && input > 0) {
+    let recipientChoiceText = "";
+    for (let i = 0; i < targets.length; i++) {
+      console.log(targets.length);
+      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+    }
+    let recipient = prompt(`Target(${recipientChoiceText})`);
+    performMove(hero, targets[recipient - 1], choices[input - 1]);
     check();
   } else {
     option(choices);
