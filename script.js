@@ -4,65 +4,93 @@ const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
+let punch = {
+  name: "punch",
+  dmg: 10,
+  outcome: function (caster, target) {
+    let recipientChoiceText = "";
+    for (let i = 0; i < targets.length; i++) {
+      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+    }
+    let recipient;
+    if (caster.isPlayer == true) {
+      recipient = targets[prompt(`${recipientChoiceText}`) - 1];
+    } else {
+      recipient = target;
+    }
+    alert(`${caster.name} uses ${this.name}`);
+    recipient.hp = recipient.hp - this.dmg;
+    alert(`${recipient.name} receives ${this.dmg} Dmg`);
+    alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
+  },
+};
+
+let heal = {
+  name: "Heal",
+  heal: 20,
+  outcome: function (caster, target) {
+    let recipientChoiceText = "";
+    for (let i = 0; i < targets.length; i++) {
+      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+    }
+    let recipient;
+    if (caster.isPlayer == true) {
+      recipient = targets[prompt(`${recipientChoiceText}`) - 1];
+    } else {
+      recipient = target;
+    }
+    alert(`${caster.name} uses ${this.name}`);
+    if (recipient.hp + this.heal > recipient.maxHP) {
+      alert(`${recipient.name} heals ${recipient.maxHP - recipient.hp} HP`);
+      recipient.hp = recipient.maxHP;
+    } else {
+      alert(`${recipient.name} heals ${this.heal} HP`);
+      recipient.hp = recipient.hp + this.heal;
+    }
+    alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
+  },
+};
+
 let enemy = {
   name: "Zombie",
+  isPlayer: false,
   maxHP: 100,
   hp: 100,
 };
 
 let hero = {
+  isPlayer: true,
   name: "Henry",
   maxHP: 100,
   hp: 100,
   energy: 100,
+  abilities: [punch, heal],
 };
 
-let punch = {
-  name: "punch",
-  isAttack: true,
-  isHeal: false,
-  dmg: 20,
-  eng: 10,
+let hero_2 = {
+  isPlayer: true,
+  name: "Charlie",
+  maxHP: 100,
+  hp: 100,
+  energy: 100,
+  abilities: [heal],
 };
 
-let afterNoonDelight = {
-  name: "Afternoon Delight",
-  isAttack: false,
-  isHeal: true,
-  heal: 40,
-  eng: 20,
-};
-
-let targets = [hero, enemy];
-
-let moves = [punch, afterNoonDelight];
-
-const performMove = function (caster, target, type) {
-  if (type == undefined) {
-    option(moves);
-  } else {
-    alert(`${caster.name} uses ${type.name}`);
-    console.log(type);
-    if (type.isAttack == true) {
-      target.hp = target.hp - type.dmg;
-      alert(`${target.name} receives ${type.dmg} Dmg`);
-      alert(`${target.name}'s HP is ${target.hp}/${target.maxHP}`);
-    }
-    if (type.isHeal == true) {
-      if (target.hp + type.heal > target.maxHP) {
-        alert(`${target.name} heals ${target.maxHP - target.hp} HP`);
-        target.hp = target.maxHP;
-      } else {
-        alert(`${target.name} heals ${type.heal} HP`);
-        target.hp = target.hp + type.heal;
-      }
-      alert(`${target.name}'s HP is ${target.hp}/${target.maxHP}`);
-    }
+let entities = [hero, hero_2, enemy];
+let playerEntities = [];
+for (i = 0; i < entities.length; i++) {
+  console.log[i];
+  if (entities[i].isPlayer == true) {
+    playerEntities.push(entities[i]);
   }
-};
-let choiceText = "";
-const option = function (choices) {
-  choiceText = "";
+}
+
+let targets = entities;
+
+let moves = [punch, heal];
+
+const option = function (choices, performer) {
+  let choiceText = "";
   for (let i = 0; i < choices.length; i++) {
     choiceText += ` ${i + 1}) ${choices[i].name}`;
     if (choices[i].isAttack == true) {
@@ -73,19 +101,14 @@ const option = function (choices) {
     }
   }
   let input = parseInt(prompt(`${choiceText}`));
-  console.log(Number.isInteger(input));
 
   if (input <= choices.length && input > 0) {
-    let recipientChoiceText = "";
-    for (let i = 0; i < targets.length; i++) {
-      console.log(targets.length);
-      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
-    }
-    let recipient = prompt(`Target(${recipientChoiceText})`);
-    performMove(hero, targets[recipient - 1], choices[input - 1]);
-    check();
+    console.log(performer);
+    choices[input - 1].outcome(performer);
+    //check();
+  } else if (input == dev) {
   } else {
-    option(choices);
+    option(choices, performer);
   }
 };
 
@@ -95,18 +118,16 @@ const check = function () {
   } else if (hero.hp <= 0) {
     alert(`You lose`);
   } else {
-    performMove(enemy, hero, punch);
-    if (hero.hp <= 0) {
-      alert(`You lose`);
-    } else {
-      option(moves);
+    for (i = 0; i < playerEntities.length; i++) {
+      option(playerEntities[i].abilities, playerEntities[i]);
     }
-    if (hero.hp > 0) {
-      check();
-    }
+    enemyTurn();
+    check();
   }
 };
 
-alert(`A ${enemy.name} attackes you!`);
-option(moves);
+const enemyTurn = function () {
+  punch.outcome(enemy, hero);
+};
+
 check();
