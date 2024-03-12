@@ -4,28 +4,12 @@ const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-let enemy = {
-  name: "Zombie",
-  isPlayer: false,
-  maxHP: 100,
-  hp: 100,
-};
-
-let hero = {
-  isPlayer: true,
-  name: "Henry",
-  maxHP: 100,
-  hp: 100,
-  energy: 100,
-};
-
 let punch = {
   name: "punch",
   dmg: 10,
   outcome: function (caster, target) {
     let recipientChoiceText = "";
     for (let i = 0; i < targets.length; i++) {
-      console.log(targets.length);
       recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
     }
     let recipient;
@@ -41,13 +25,12 @@ let punch = {
   },
 };
 
-let afterNoonDelight = {
-  name: "Afternoon Delight",
+let heal = {
+  name: "Heal",
   heal: 20,
   outcome: function (caster, target) {
     let recipientChoiceText = "";
     for (let i = 0; i < targets.length; i++) {
-      console.log(targets.length);
       recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
     }
     let recipient;
@@ -68,11 +51,45 @@ let afterNoonDelight = {
   },
 };
 
-let targets = [hero, enemy];
+let enemy = {
+  name: "Zombie",
+  isPlayer: false,
+  maxHP: 100,
+  hp: 100,
+};
 
-let moves = [punch, afterNoonDelight];
+let hero = {
+  isPlayer: true,
+  name: "Henry",
+  maxHP: 100,
+  hp: 100,
+  energy: 100,
+  abilities: [punch, heal],
+};
 
-const option = function (choices) {
+let hero_2 = {
+  isPlayer: true,
+  name: "Charlie",
+  maxHP: 100,
+  hp: 100,
+  energy: 100,
+  abilities: [heal],
+};
+
+let entities = [hero, hero_2, enemy];
+let playerEntities = [];
+for (i = 0; i < entities.length; i++) {
+  console.log[i];
+  if (entities[i].isPlayer == true) {
+    playerEntities.push(entities[i]);
+  }
+}
+
+let targets = entities;
+
+let moves = [punch, heal];
+
+const option = function (choices, performer) {
   let choiceText = "";
   for (let i = 0; i < choices.length; i++) {
     choiceText += ` ${i + 1}) ${choices[i].name}`;
@@ -84,13 +101,14 @@ const option = function (choices) {
     }
   }
   let input = parseInt(prompt(`${choiceText}`));
-  console.log(Number.isInteger(input));
 
   if (input <= choices.length && input > 0) {
-    choices[input - 1].outcome(hero);
-    check();
+    console.log(performer);
+    choices[input - 1].outcome(performer);
+    //check();
+  } else if (input == dev) {
   } else {
-    option(choices);
+    option(choices, performer);
   }
 };
 
@@ -100,18 +118,16 @@ const check = function () {
   } else if (hero.hp <= 0) {
     alert(`You lose`);
   } else {
-    punch.outcome(enemy, hero);
-    if (hero.hp <= 0) {
-      alert(`You lose`);
-    } else {
-      option(moves);
+    for (i = 0; i < playerEntities.length; i++) {
+      option(playerEntities[i].abilities, playerEntities[i]);
     }
-    if (hero.hp > 0) {
-      check();
-    }
+    enemyTurn();
+    check();
   }
 };
 
-alert(`A ${enemy.name} attackes you!`);
-option(moves);
+const enemyTurn = function () {
+  punch.outcome(enemy, hero);
+};
+
 check();
