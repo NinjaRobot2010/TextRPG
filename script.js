@@ -1,61 +1,110 @@
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector("#canvas");
+const textInput = document.querySelector("#textInput");
+const optionTexts = document.querySelector(".optionText");
+const resultText = document.querySelector("#resultText");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+resultText.textContent = "result";
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+class Command {
+  constructor(commandKey, commandFunction) {
+    this.commandKey = commandKey;
+    this.commandFunction = commandFunction;
+  }
+  executeCommand() {
+    this.commandFunction();
+  }
+}
 
-let punch = {
-  name: "punch",
-  dmg: 10,
-  outcome: function (caster, target) {
-    let recipientChoiceText = "";
-    for (let i = 0; i < targets.length; i++) {
-      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+let testCommand = new Command("execute", function () {
+  console.log("testCommand");
+});
+
+let possibleCommands = [testCommand];
+
+document.addEventListener("keydown", function (event) {
+  if (event.key == "Enter") {
+    for (let i = 0; i < possibleCommands.length; i++) {
+      if (textInput.value == possibleCommands[i].commandKey) {
+        possibleCommands[i].executeCommand();
+      }
     }
-    let recipient;
-    if (caster.isPlayer == true) {
-      recipient = targets[prompt(`${recipientChoiceText}`) - 1];
-    } else {
-      recipient = target;
-    }
+    textInput.value = "";
+  }
+});
+
+/*
+class move {
+  constructor(name, engReq, outcome) {
+    this.name = name;
+    this.engReq = engReq;
+    this.outcome = outcome;
+  }
+
+  
+  performMove(caster, target) {
     alert(`${caster.name} uses ${this.name}`);
-    recipient.hp = recipient.hp - this.dmg;
-    alert(`${recipient.name} receives ${this.dmg} Dmg`);
-    alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
-  },
-};
+    this.outcome(caster, target);
+    caster.energy -= this.engReq;
+    alert(`${caster.name}'s Eng is ${caster.energy}/${caster.maxEnergy}`);
+  }
+}
 
-let heal = {
-  name: "Heal",
-  heal: 20,
-  outcome: function (caster, target) {
-    let recipientChoiceText = "";
-    for (let i = 0; i < targets.length; i++) {
-      recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
-    }
-    let recipient;
-    if (caster.isPlayer == true) {
-      recipient = targets[prompt(`${recipientChoiceText}`) - 1];
-    } else {
-      recipient = target;
-    }
-    alert(`${caster.name} uses ${this.name}`);
-    if (recipient.hp + this.heal > recipient.maxHP) {
-      alert(`${recipient.name} heals ${recipient.maxHP - recipient.hp} HP`);
-      recipient.hp = recipient.maxHP;
-    } else {
-      alert(`${recipient.name} heals ${this.heal} HP`);
-      recipient.hp = recipient.hp + this.heal;
-    }
-    alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
-  },
-};
+let punch = new move("punch", 10, function (caster, target) {
+  let recipientChoiceText = "";
+  for (let i = 0; i < targets.length; i++) {
+    recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+  }
+  let recipient;
+  if (caster.isPlayer == true) {
+    recipient = targets[prompt(`${recipientChoiceText}`) - 1];
+  } else {
+    recipient = target;
+  }
+  recipient.hp = recipient.hp - 10;
+  alert(`${recipient.name} receives 10 Dmg`);
+  alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
+});
+
+let heal = new move("heal", 50, function (caster, target) {
+  let recipientChoiceText = "";
+  for (let i = 0; i < targets.length; i++) {
+    recipientChoiceText += ` ${i + 1}) ${targets[i].name}`;
+  }
+  let recipient;
+  if (caster.isPlayer == true) {
+    recipient = targets[prompt(`${recipientChoiceText}`) - 1];
+  } else {
+    recipient = target;
+  }
+  alert(`${caster.name} uses ${this.name}`);
+  if (recipient.hp + 10 > recipient.maxHP) {
+    alert(`${recipient.name} heals ${recipient.maxHP - recipient.hp} HP`);
+    recipient.hp = recipient.maxHP;
+  } else {
+    alert(`${recipient.name} heals 10 HP`);
+    recipient.hp = recipient.hp + 10;
+  }
+  alert(`${recipient.name}'s HP is ${recipient.hp}/${recipient.maxHP}`);
+});
+
+const calcATKPower = function () {};
 
 let enemy = {
   name: "Zombie",
   isPlayer: false,
   maxHP: 100,
   hp: 100,
+  maxEnergy: 100,
+  energy: 100,
+  equipment: {
+    rune1: undefined,
+    rune2: undefined,
+    rune3: undefined,
+    rune4: undefined,
+    rune5: undefined,
+    weapon: undefined,
+  },
 };
 
 let hero = {
@@ -64,7 +113,17 @@ let hero = {
   maxHP: 100,
   hp: 100,
   energy: 100,
+  maxEnergy: 100,
+  energy: 100,
   abilities: [punch, heal],
+  equipment: {
+    rune1: undefined,
+    rune2: undefined,
+    rune3: undefined,
+    rune4: undefined,
+    rune5: undefined,
+    weapon: undefined,
+  },
 };
 
 let hero_2 = {
@@ -73,6 +132,7 @@ let hero_2 = {
   maxHP: 100,
   hp: 100,
   energy: 100,
+  maxEnergy: 100,
   abilities: [heal],
 };
 
@@ -87,9 +147,10 @@ for (i = 0; i < entities.length; i++) {
 
 let targets = entities;
 
-let moves = [punch, heal];
+let gameMoves = [punch, heal];
 
 const option = function (choices, performer) {
+  console.log(performer);
   let choiceText = "";
   for (let i = 0; i < choices.length; i++) {
     choiceText += ` ${i + 1}) ${choices[i].name}`;
@@ -102,11 +163,15 @@ const option = function (choices, performer) {
   }
   let input = parseInt(prompt(`${choiceText}`));
 
-  if (input <= choices.length && input > 0) {
+  if (
+    input <= choices.length &&
+    input > 0 &&
+    choices[input - 1].engReq < performer.energy
+  ) {
     console.log(performer);
-    choices[input - 1].outcome(performer);
+    choices[input - 1].performMove(performer);
     //check();
-  } else if (input == dev) {
+  } else if (input == "dev") {
   } else {
     option(choices, performer);
   }
@@ -127,7 +192,8 @@ const check = function () {
 };
 
 const enemyTurn = function () {
-  punch.outcome(enemy, hero);
+  punch.performMove(enemy, hero);
 };
 
 check();
+*/
