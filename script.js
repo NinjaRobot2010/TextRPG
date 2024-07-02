@@ -1,10 +1,21 @@
 const canvas = document.querySelector("#canvas");
 const textInput = document.querySelector("#textInput");
-const optionTexts = document.querySelector(".optionText");
+const optionTexts = document.querySelectorAll(".optionText");
 const resultText = document.querySelector("#resultText");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-resultText.textContent = "result";
+
+class Location {
+  constructor(name, description, connections = []) {
+    this.name = name;
+    this.description = description;
+    this.connections = connections;
+  }
+
+  addConnection(location) {
+    this.connections.push(location);
+  }
+}
 
 class Command {
   constructor(commandKey, commandFunction) {
@@ -16,22 +27,91 @@ class Command {
   }
 }
 
-let testCommand = new Command("execute", function () {
-  console.log("testCommand");
+class MoveCommand extends Command {
+  constructor(commandKey, destination) {
+    super(commandKey, function () {
+      currentLocation = destination;
+      UpdateGame();
+    });
+    this.destination = destination;
+  }
+}
+
+let createMoveCommands = function () {
+  for (let i = 0; i < possibleCommands.length; i++) {
+    if (possibleCommands[i] instanceof MoveCommand) {
+      possibleCommands.splice(i);
+    }
+  }
+  for (let i = 0; i < currentLocation.connections.length; i++) {
+    possibleCommands.push(
+      new MoveCommand(i + 1, currentLocation.connections[i])
+    );
+  }
+};
+
+let backyard = new Location(
+  "Backyard",
+  "Your backyard, the second location of the game"
+);
+
+let house = new Location(
+  "House",
+  "Your house, the first location of the game "
+);
+
+let frontYard = new Location(
+  "Frontyard",
+  "Your Frontyard, the third locaton of teh game"
+);
+
+backyard.addConnection(house);
+
+House.addConnection(backyard, frontYard);
+
+frontYard.addConnection(house);
+
+let currentLocation = house;
+
+resultText.textContent = currentLocation.description;
+
+let exitHouseCommand = new Command("exit home", function () {
+  currentLocation = backyard;
+  //resultText.textContent = currentLocation.description;
 });
 
-let possibleCommands = [testCommand];
+let enterHouseCommand = new Command("enter home", function () {
+  currentLocation = testHouse;
+  //resultText.textContent = currentLocation.description;
+});
+
+let possibleCommands = [exitHouseCommand, enterHouseCommand];
 
 document.addEventListener("keydown", function (event) {
   if (event.key == "Enter") {
     for (let i = 0; i < possibleCommands.length; i++) {
       if (textInput.value == possibleCommands[i].commandKey) {
         possibleCommands[i].executeCommand();
+        UpdateGame();
       }
     }
     textInput.value = "";
   }
 });
+
+let UpdateGame = function () {
+  resultText.textContent = currentLocation.description;
+  for (let i = 0; i < optionTexts.length; i++) {
+    if (currentLocation.connections[i] !== undefined) {
+      optionTexts[i].textContent = `1 ${currentLocation.connections[i].name}`;
+    } else {
+      optionTexts[i].textContent = "";
+    }
+  }
+  createMoveCommands();
+};
+
+UpdateGame();
 
 /*
 class move {
