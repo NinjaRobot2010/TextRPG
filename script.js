@@ -5,6 +5,32 @@ const resultText = document.querySelector("#resultText");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+class Player {
+  constructor(inventory, location, possibleCommands) {
+    this.inventory = inventory;
+    this.location = location;
+    this.possibleCommands = possibleCommands;
+  }
+}
+
+class Uses {
+  constructor(description, action) {
+    this.description = description;
+    this.action = action;
+  }
+}
+
+class Item {
+  constructor(name, uses) {
+    this.name = name;
+    this.uses = uses;
+  }
+
+  executeUse(i) {
+    this.uses[i].action();
+  }
+}
+
 class Location {
   constructor(name, description, connections = []) {
     this.name = name;
@@ -13,7 +39,9 @@ class Location {
   }
 
   addConnection(location) {
-    this.connections.push(location);
+    for (let i = 0; i < location.length; i++) {
+      this.connections.push(location[i]);
+    }
   }
 }
 
@@ -30,7 +58,7 @@ class Command {
 class MoveCommand extends Command {
   constructor(commandKey, destination) {
     super(commandKey, function () {
-      currentLocation = destination;
+      mainPlayer.location = destination;
       UpdateGame();
     });
     this.destination = destination;
@@ -38,17 +66,42 @@ class MoveCommand extends Command {
 }
 
 let createMoveCommands = function () {
-  for (let i = 0; i < possibleCommands.length; i++) {
-    if (possibleCommands[i] instanceof MoveCommand) {
-      possibleCommands.splice(i);
+  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+    if (mainPlayer.possibleCommands[i] instanceof MoveCommand) {
+      mainPlayer.possibleCommands.splice(i);
     }
   }
-  for (let i = 0; i < currentLocation.connections.length; i++) {
-    possibleCommands.push(
-      new MoveCommand(i + 1, currentLocation.connections[i])
+  for (let i = 0; i < mainPlayer.location.connections.length; i++) {
+    mainPlayer.possibleCommands.push(
+      new MoveCommand(i + 1, mainPlayer.location.connections[i])
     );
   }
 };
+
+/*
+createInventoryCommand(){
+  mainPlayer.possibleCommands.push(new Command(4, function(){
+    possibleCommands = [];
+    for(let i = 0; i < mainPlayer.inventory.length; i++){
+      mainPlayer.possibleCommands.push(new Command());
+    }
+  }));
+}
+  */
+
+let createCommands = function (makeMoveCommands, makeInventoryCommand) {
+  let i = 0;
+  if (makeMoveCommands == true) {
+    createMoveCommands();
+  }
+  if (makeInventoryCommand == true) {
+    createInventoryCommand();
+  }
+};
+
+let paper = new Item("Paper");
+
+let mainPlayer = new Player([paper]);
 
 let backyard = new Location(
   "Backyard",
@@ -62,36 +115,26 @@ let house = new Location(
 
 let frontYard = new Location(
   "Frontyard",
-  "Your Frontyard, the third locaton of teh game"
+  "Your Frontyard, the third locaton of the game"
 );
 
-backyard.addConnection(house);
+backyard.addConnection([house]);
 
-House.addConnection(backyard, frontYard);
+house.addConnection([backyard, frontYard]);
 
-frontYard.addConnection(house);
+frontYard.addConnection([house]);
 
-let currentLocation = house;
+mainPlayer.location = house;
 
-resultText.textContent = currentLocation.description;
+resultText.textContent = mainPlayer.location.description;
 
-let exitHouseCommand = new Command("exit home", function () {
-  currentLocation = backyard;
-  //resultText.textContent = currentLocation.description;
-});
-
-let enterHouseCommand = new Command("enter home", function () {
-  currentLocation = testHouse;
-  //resultText.textContent = currentLocation.description;
-});
-
-let possibleCommands = [exitHouseCommand, enterHouseCommand];
+mainPlayer.possibleCommands = [];
 
 document.addEventListener("keydown", function (event) {
   if (event.key == "Enter") {
-    for (let i = 0; i < possibleCommands.length; i++) {
-      if (textInput.value == possibleCommands[i].commandKey) {
-        possibleCommands[i].executeCommand();
+    for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+      if (textInput.value == mainPlayer.possibleCommands[i].commandKey) {
+        mainPlayer.possibleCommands[i].executeCommand();
         UpdateGame();
       }
     }
@@ -100,10 +143,12 @@ document.addEventListener("keydown", function (event) {
 });
 
 let UpdateGame = function () {
-  resultText.textContent = currentLocation.description;
+  resultText.textContent = mainPlayer.location.description;
   for (let i = 0; i < optionTexts.length; i++) {
-    if (currentLocation.connections[i] !== undefined) {
-      optionTexts[i].textContent = `1 ${currentLocation.connections[i].name}`;
+    if (mainPlayer.location.connections[i] !== undefined) {
+      optionTexts[i].textContent = `${i + 1} ${
+        mainPlayer.location.connections[i].name
+      }`;
     } else {
       optionTexts[i].textContent = "";
     }
