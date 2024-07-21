@@ -6,10 +6,11 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 class Player {
-  constructor(inventory, location, possibleCommands) {
+  constructor(inventory, location, possibleCommands, selectedItem) {
     this.inventory = inventory;
     this.location = location;
     this.possibleCommands = possibleCommands;
+    this.selectedItem = selectedItem;
   }
 }
 
@@ -65,43 +66,73 @@ class MoveCommand extends Command {
   }
 }
 
-let createMoveCommands = function () {
-  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
-    if (mainPlayer.possibleCommands[i] instanceof MoveCommand) {
-      mainPlayer.possibleCommands.splice(i);
-    }
+class ItemCommand extends Command {
+  constructor(commandKey, parentItem) {
+    super(commandKey, function () {
+      mainPlayer.selectedItem = parentItem;
+      UpdateGame();
+    });
+    this.parentItem = parentItem;
   }
+}
+
+class InventoryCommand extends Command {
+  constructor(commandKey) {
+    super(commandKey, function () {
+      displayConnections = false;
+      displayInventoryCommand = false;
+      displayInventory = true;
+      UpdateGame();
+    });
+  }
+}
+
+let createMoveCommands = function () {
   for (let i = 0; i < mainPlayer.location.connections.length; i++) {
     mainPlayer.possibleCommands.push(
       new MoveCommand(i + 1, mainPlayer.location.connections[i])
     );
   }
+  for (let i = 0; i < optionTexts.length; i++) {
+    if (mainPlayer.location.connections[i] !== undefined) {
+      optionTexts[i].textContent = `${i + 1} ${
+        mainPlayer.location.connections[i].name
+      }`;
+    } else {
+      optionTexts[i].textContent = "";
+    }
+  }
 };
 
-/*
-createInventoryCommand(){
-  mainPlayer.possibleCommands.push(new Command(4, function(){
-    possibleCommands = [];
-    for(let i = 0; i < mainPlayer.inventory.length; i++){
-      mainPlayer.possibleCommands.push(new Command());
-    }
-  }));
-}
-  */
-
-let createCommands = function (makeMoveCommands, makeInventoryCommand) {
-  let i = 0;
-  if (makeMoveCommands == true) {
-    createMoveCommands();
+let createItemCommands = function () {
+  for (let i = 0; i < mainPlayer.inventory.length; i++) {
+    mainPlayer.possibleCommands.push(
+      new ItemCommand(i + 1, mainPlayer.inventory[i])
+    );
   }
-  if (makeInventoryCommand == true) {
-    createInventoryCommand();
+  for (let i = 0; i < optionTexts.length; i++) {
+    if (mainPlayer.inventory[i] !== undefined) {
+      optionTexts[i].textContent = `${i + 1} ${mainPlayer.inventory[i].name}`;
+    } else {
+      optionTexts[i].textContent = "";
+    }
+  }
+};
+
+let createInventoryCommand = function () {
+  mainPlayer.possibleCommands.push(
+    new InventoryCommand(mainPlayer.possibleCommands.length + 1)
+  );
+  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+    if (mainPlayer.possibleCommands[i] instanceof InventoryCommand) {
+      optionTexts[i].textContent = `${i + 1} Inventory`;
+    }
   }
 };
 
 let paper = new Item("Paper");
 
-let mainPlayer = new Player([paper]);
+let pencil = new Item("Pencil");
 
 let backyard = new Location(
   "Backyard",
@@ -124,11 +155,11 @@ house.addConnection([backyard, frontYard]);
 
 frontYard.addConnection([house]);
 
-mainPlayer.location = house;
+let mainPlayer = new Player([paper, pencil], house, [], undefined);
 
-resultText.textContent = mainPlayer.location.description;
-
-mainPlayer.possibleCommands = [];
+let displayConnections = true;
+let displayInventory = false;
+let displayInventoryCommand = true;
 
 document.addEventListener("keydown", function (event) {
   if (event.key == "Enter") {
@@ -143,17 +174,18 @@ document.addEventListener("keydown", function (event) {
 });
 
 let UpdateGame = function () {
+  mainPlayer.possibleCommands = [];
   resultText.textContent = mainPlayer.location.description;
-  for (let i = 0; i < optionTexts.length; i++) {
-    if (mainPlayer.location.connections[i] !== undefined) {
-      optionTexts[i].textContent = `${i + 1} ${
-        mainPlayer.location.connections[i].name
-      }`;
-    } else {
-      optionTexts[i].textContent = "";
-    }
+
+  if (displayConnections == true) {
+    createMoveCommands();
   }
-  createMoveCommands();
+  if (displayInventory == true) {
+    createItemCommands();
+  }
+  if (displayInventoryCommand == true) {
+    createInventoryCommand();
+  }
 };
 
 UpdateGame();
