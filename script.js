@@ -117,6 +117,17 @@ let createItemCommands = function () {
       optionTexts[i].textContent = "";
     }
   }
+  mainPlayer.possibleCommands.push(
+    new Command(mainPlayer.possibleCommands.length + 1, function () {
+      displayConnections = true;
+      displayInventory = false;
+      displayInventoryCommand = true;
+      UpdateGame();
+    })
+  );
+  optionTexts[
+    mainPlayer.possibleCommands.length - 1
+  ].textContent = `${mainPlayer.possibleCommands.length} Back`;
 };
 
 let createInventoryCommand = function () {
