@@ -5,88 +5,23 @@ const resultText = document.querySelector("#resultText");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-class Player {
-  constructor(inventory, location, possibleCommands, selectedItem) {
-    this.inventory = inventory;
-    this.location = location;
-    this.possibleCommands = possibleCommands;
-    this.selectedItem = selectedItem;
-  }
-}
+import { User } from "./classes.js";
+import { Character } from "./classes.js";
+import { Party } from "./classes.js";
+import { Item } from "./classes.js";
+import { Location } from "./classes.js";
+import { NPC } from "./classes.js";
+import { Enemy } from "./classes.js";
+import { Quest } from "./classes.js";
+import { Ability } from "./classes.js";
+import { Class } from "./classes.js";
+import { Command } from "./classes.js";
+import { MoveCommand } from "./classes.js";
+import { ItemCommand } from "./classes.js";
+import { InventoryCommand } from "./classes.js";
+import { Loot } from "./classes.js";
 
-class Uses {
-  constructor(description, action) {
-    this.description = description;
-    this.action = action;
-  }
-}
-
-class Item {
-  constructor(name, uses) {
-    this.name = name;
-    this.uses = uses;
-  }
-
-  executeUse(i) {
-    this.uses[i].action();
-  }
-}
-
-class Location {
-  constructor(name, description, connections = []) {
-    this.name = name;
-    this.description = description;
-    this.connections = connections;
-  }
-
-  addConnection(location) {
-    for (let i = 0; i < location.length; i++) {
-      this.connections.push(location[i]);
-    }
-  }
-}
-
-class Command {
-  constructor(commandKey, commandFunction) {
-    this.commandKey = commandKey;
-    this.commandFunction = commandFunction;
-  }
-  executeCommand() {
-    this.commandFunction();
-  }
-}
-
-class MoveCommand extends Command {
-  constructor(commandKey, destination) {
-    super(commandKey, function () {
-      mainPlayer.location = destination;
-      UpdateGame();
-    });
-    this.destination = destination;
-  }
-}
-
-class ItemCommand extends Command {
-  constructor(commandKey, parentItem) {
-    super(commandKey, function () {
-      mainPlayer.selectedItem = parentItem;
-      parentItem.uses();
-      UpdateGame();
-    });
-    this.parentItem = parentItem;
-  }
-}
-
-class InventoryCommand extends Command {
-  constructor(commandKey) {
-    super(commandKey, function () {
-      displayConnections = false;
-      displayInventoryCommand = false;
-      displayInventory = true;
-      UpdateGame();
-    });
-  }
-}
+let testUser = new User("test", "test");
 
 let createMoveCommands = function () {
   for (let i = 0; i < mainPlayer.location.connections.length; i++) {
@@ -142,13 +77,16 @@ let createInventoryCommand = function () {
   }
 };
 
-let paper = new Item("Paper", function () {
+/*let paper = new Item("Paper", function () {
   console.log("The paper item has been used");
 });
+*/
 
+/*
 let pencil = new Item("Pencil", function () {
   console.log("The pencil item has been used");
 });
+*/
 
 let backyard = new Location(
   "Backyard",
@@ -165,13 +103,13 @@ let frontYard = new Location(
   "Your Frontyard, the third locaton of the game"
 );
 
-backyard.addConnection([house]);
+backyard.addConnections([house]);
 
-house.addConnection([backyard, frontYard]);
+house.addConnections([backyard, frontYard]);
 
-frontYard.addConnection([house]);
+frontYard.addConnections([house]);
 
-let mainPlayer = new Player([paper, pencil], house, [], undefined);
+let mainPlayer = new Party([paper, pencil], house, [], undefined);
 
 let displayConnections = true;
 let displayInventory = false;
