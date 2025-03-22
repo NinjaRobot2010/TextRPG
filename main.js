@@ -1,11 +1,11 @@
 const canvas = document.querySelector("#canvas");
 const textInput = document.querySelector("#textInput");
-const optionTexts = document.querySelectorAll(".optionText");
+export const optionTexts = document.querySelectorAll(".optionText");
 const resultText = document.querySelector("#resultText");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-import { User } from "./classes.js";
+import { CategoryCommand, User } from "./classes.js";
 import { Character } from "./classes.js";
 import { Party } from "./classes.js";
 import { Item } from "./classes.js";
@@ -18,75 +18,9 @@ import { Class } from "./classes.js";
 import { Command } from "./classes.js";
 import { MoveCommand } from "./classes.js";
 import { ItemCommand } from "./classes.js";
-import { InventoryCommand } from "./classes.js";
 import { Loot } from "./classes.js";
 
 let testUser = new User("test", "test");
-
-let createMoveCommands = function () {
-  for (let i = 0; i < mainPlayer.location.connections.length; i++) {
-    mainPlayer.possibleCommands.push(
-      new MoveCommand(i + 1, mainPlayer.location.connections[i])
-    );
-  }
-  for (let i = 0; i < optionTexts.length; i++) {
-    if (mainPlayer.location.connections[i] !== undefined) {
-      optionTexts[i].textContent = `${i + 1} ${
-        mainPlayer.location.connections[i].name
-      }`;
-    } else {
-      optionTexts[i].textContent = "";
-    }
-  }
-};
-
-let createItemCommands = function () {
-  for (let i = 0; i < mainPlayer.inventory.length; i++) {
-    mainPlayer.possibleCommands.push(
-      new ItemCommand(i + 1, mainPlayer.inventory[i])
-    );
-  }
-  for (let i = 0; i < optionTexts.length; i++) {
-    if (mainPlayer.inventory[i] !== undefined) {
-      optionTexts[i].textContent = `${i + 1} ${mainPlayer.inventory[i].name}`;
-    } else {
-      optionTexts[i].textContent = "";
-    }
-  }
-  mainPlayer.possibleCommands.push(
-    new Command(mainPlayer.possibleCommands.length + 1, function () {
-      displayConnections = true;
-      displayInventory = false;
-      displayInventoryCommand = true;
-      UpdateGame();
-    })
-  );
-  optionTexts[
-    mainPlayer.possibleCommands.length - 1
-  ].textContent = `${mainPlayer.possibleCommands.length} Back`;
-};
-
-let createInventoryCommand = function () {
-  mainPlayer.possibleCommands.push(
-    new InventoryCommand(mainPlayer.possibleCommands.length + 1)
-  );
-  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
-    if (mainPlayer.possibleCommands[i] instanceof InventoryCommand) {
-      optionTexts[i].textContent = `${i + 1} Inventory`;
-    }
-  }
-};
-
-/*let paper = new Item("Paper", function () {
-  console.log("The paper item has been used");
-});
-*/
-
-/*
-let pencil = new Item("Pencil", function () {
-  console.log("The pencil item has been used");
-});
-*/
 
 let backyard = new Location(
   "Backyard",
@@ -109,37 +43,153 @@ house.addConnections([backyard, frontYard]);
 
 frontYard.addConnections([house]);
 
-let mainPlayer = new Party([paper, pencil], house, [], undefined);
+export let mainPlayer = new Party(
+  "RobotNinja@2010",
+  house,
+  [],
+  undefined,
+  [],
+  []
+);
 
-let displayConnections = true;
-let displayInventory = false;
-let displayInventoryCommand = true;
-
-document.addEventListener("keydown", function (event) {
-  if (event.key == "Enter") {
-    for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
-      if (textInput.value == mainPlayer.possibleCommands[i].commandKey) {
-        mainPlayer.possibleCommands[i].executeCommand();
-        UpdateGame();
-      }
-    }
-    textInput.value = "";
-  }
-});
-
-let UpdateGame = function () {
-  mainPlayer.possibleCommands = [];
-  resultText.textContent = mainPlayer.location.description;
-
-  if (displayConnections == true) {
-    createMoveCommands();
-  }
-  if (displayInventory == true) {
-    createItemCommands();
-  }
-  if (displayInventoryCommand == true) {
-    createInventoryCommand();
+let createMoveCommands = function () {
+  for (let i = 0; i < mainPlayer.location.connections.length; i++) {
+    mainPlayer.possibleCommands.push(
+      new MoveCommand(
+        undefined,
+        mainPlayer.location.connections[i],
+        mainPlayer.location.connections[i].name
+      )
+    );
   }
 };
 
-UpdateGame();
+mainPlayer.possibleCommands.push();
+
+let createCategoryCommand = function (commandType, displayName) {
+  mainPlayer.possibleCommands.push(
+    new CategoryCommand(undefined, commandType, displayName)
+  );
+};
+
+let displayCategoryCommands = new CategoryCommand(
+  undefined,
+  CategoryCommand,
+  true
+);
+let displayMoveCommandsUpdated = new CategoryCommand(
+  undefined,
+  MoveCommand,
+  "Travel"
+);
+
+let displayMoveCommands = function () {
+  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+    if (mainPlayer.possibleCommands[i] instanceof MoveCommand) {
+      mainPlayer.possibleCommands[i].displayed = true;
+    }
+  }
+};
+
+let displayCommands = function () {
+  for (let i = 0; i < optionTexts.length; i++) {
+    let counter = 0;
+    //console.log(mainPlayer.possibleCommands[i].displayed);
+    if (
+      mainPlayer.possibleCommands[i] !== undefined &&
+      mainPlayer.possibleCommands[i].displayed
+    ) {
+      counter++;
+      mainPlayer.possibleCommands[i].commandKey = counter;
+      optionTexts[
+        i
+      ].textContent = `${counter} ${mainPlayer.possibleCommands[i].displayName}`;
+    } else {
+      optionTexts[i].textContent = "";
+    }
+  }
+};
+
+export let updateGame = function () {
+  mainPlayer.possibleCommands = [];
+  for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {}
+  resultText.textContent = mainPlayer.location.description;
+  createMoveCommands();
+  createCategoryCommand(MoveCommand, "Travel");
+  displayCategoryCommands.commandFunction();
+  //displayMoveCommands();
+  //createItemCommands();
+  //createInventoryCommand();
+  displayCommands();
+};
+
+/*
+let createItemCommands = function () {
+  for (let i = 0; i < mainPlayer.inventory.length; i++) {
+    mainPlayer.possibleCommands.push(
+      new ItemCommand(i + 1, mainPlayer.inventory[i])
+    );
+  }
+  for (let i = 0; i < optionTexts.length; i++) {
+    if (mainPlayer.inventory[i] !== undefined) {
+      optionTexts[i].textContent = `${i + 1} ${mainPlayer.inventory[i].name}`;
+    } else {
+      optionTexts[i].textContent = "";
+    }
+  }
+
+  mainPlayer.possibleCommands.push(
+    new Command(mainPlayer.possibleCommands.length + 1, function () {
+      displayConnections = true;
+      displayInventory = false;
+      displayInventoryCommand = true;
+      updateGame();
+    })
+  );
+  optionTexts[
+    mainPlayer.possibleCommands.length - 1
+  ].textContent = `${mainPlayer.possibleCommands.length} Back`;
+};
+*/
+let createInventoryCommand = function () {};
+
+/*let paper = new Item("Paper", function () {
+  console.log("The paper item has been used");
+});
+*/
+
+/*
+let pencil = new Item("Pencil", function () {
+  console.log("The pencil item has been used");
+});
+*/
+
+updateGame();
+
+console.log(mainPlayer.possibleCommands);
+document.addEventListener("keydown", function (event) {
+  if (event.key == "Enter") {
+    for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+      if (
+        textInput.value == mainPlayer.possibleCommands[i].commandKey &&
+        mainPlayer.possibleCommands[i].displayed
+      ) {
+        updateGame();
+        console.log(mainPlayer.possibleCommands);
+        console.log(mainPlayer.possibleCommands[i]);
+        // console.log(mainPlayer.possibleCommands);
+        mainPlayer.possibleCommands[i].executeCommand();
+      }
+    }
+    textInput.value = "";
+    // delete this later
+    for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+      console.log(mainPlayer.possibleCommands);
+    }
+  }
+});
+
+console.log(mainPlayer.possibleCommands);
+console.log(displayCategoryCommands.commandFunction);
+console.log(mainPlayer.possibleCommands[0]);
+console.log(mainPlayer.possibleCommands[0].displayed);

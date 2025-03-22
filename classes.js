@@ -1,189 +1,64 @@
+import { mainPlayer } from "./main.js";
+import { updateGame } from "./main.js";
+import { optionTexts } from "./main.js";
+
 export class User {
-  #username;
-  #password;
+  username;
+  password;
 
   constructor(username, password) {
-    this.#username = username;
-    this.#password = password;
+    this.username = username;
+    this.password = password;
   }
 
   verifyPassword(value) {
-    return value === this.#password;
-  }
-
-  set username(value) {
-    if (typeof value === "string") {
-      this.#username = value;
-    } else {
-      throw new Error("value is not a string");
-    }
-  }
-
-  set password(value) {
-    if (typeof value === "string") {
-      this.#password = value;
-    } else {
-      throw new Error("value is not a string");
-    }
+    return value === this.password;
   }
 }
 
 export class Character {
-  #partyId;
-  #classId;
-  #name;
-  #health;
-  #maxHealth;
-  #energy;
-  #maxEnergy;
+  partyId;
+  classId;
+  name;
+  health;
+  maxHealth;
+  energy;
+  maxEnergy;
 
   constructor(partyId, classId, name, health, maxHealth, energy, maxEnergy) {
-    this.#partyId = partyId;
-    this.#classId = classId;
-    this.#name = name;
-    this.#health = health;
-    this.#maxHealth = maxHealth;
-    this.#energy = energy;
-    this.#maxEnergy = maxEnergy;
-  }
-
-  get partyId() {
-    return this.#partyId;
-  }
-
-  get classId() {
-    return this.#classId;
-  }
-
-  get name() {
-    return this.#name;
-  }
-
-  get health() {
-    return this.#health;
-  }
-
-  get maxHealth() {
-    return this.#maxHealth;
-  }
-
-  get energy() {
-    return this.#energy;
-  }
-
-  get maxEnergy() {
-    return this.#maxEnergy;
-  }
-
-  set name(value) {
-    if (typeof value === "string") {
-      this.#name = value;
-    } else {
-      throw new Error("value is not a string");
-    }
-  }
-
-  set health(value) {
-    if (typeof value === "number") {
-      this.#health = value;
-    } else {
-      throw new Error("value is not an number");
-    }
-  }
-
-  set maxHealth(value) {
-    if (typeof value === "number") {
-      this.#maxHealth = value;
-    } else {
-      throw new Error("value is not an number");
-    }
-  }
-
-  set energy(value) {
-    if (typeof value === "number") {
-      this.#energy = value;
-    } else {
-      throw new Error("value is not a number");
-    }
-  }
-  set maxEnergy(value) {
-    if (typeof value === "number") {
-      this.#maxEnergy = value;
-    } else {
-      throw new Error("value is not a number");
-    }
+    this.partyId = partyId;
+    this.classId = classId;
+    this.name = name;
+    this.health = health;
+    this.maxHealth = maxHealth;
+    this.energy = energy;
+    this.maxEnergy = maxEnergy;
   }
 }
 
 export class Party {
-  #username;
-  #location;
-  #level;
-  #xp;
+  username;
+  location;
+  level;
+  xp;
 
-  constructor(username, location, level, xp) {
+  constructor(username, location, level, xp, inventory, possibleCommands) {
     this.username = username;
     this.location = location;
     this.level = level;
     this.xp = xp;
-  }
-
-  get username() {
-    return this.#username;
-  }
-
-  get location() {
-    return this.#location;
-  }
-
-  get level() {
-    return this.#level;
-  }
-
-  get xp() {
-    return this.#xp;
-  }
-
-  set username(value) {
-    if (value instanceof username) {
-      this.#username = value;
-    } else {
-      throw Error("value is not an instance of username");
-    }
-  }
-
-  set location(value) {
-    if (value instanceof location) {
-      this.#location = value;
-    } else {
-      throw Error("value is not an instance of location");
-    }
-  }
-
-  set level(value) {
-    if (typeof value === "number") {
-      this.#level = value;
-    } else {
-      throw Error("value is not an instance of username");
-    }
-  }
-
-  set xp(value) {
-    if (typeof value === "number") {
-      this.#xp = value;
-    } else {
-      throw Error("value is not a number");
-    }
+    this.inventory = inventory;
+    this.possibleCommands = possibleCommands;
   }
 }
 
 export class Item {
-  #name;
-  #uses;
-  #description;
-  #cost;
-  #value;
-  #multiplier;
+  name;
+  uses;
+  description;
+  cost;
+  value;
+  multiplier;
 
   constructor(name, uses, description, cost, value, multiplier) {
     this.name = name;
@@ -194,116 +69,23 @@ export class Item {
     this.multiplier = multiplier;
   }
 
-  get name() {
-    return this.#name;
-  }
-
-  get uses() {
-    return this.#uses;
-  }
-
-  get description() {
-    return this.#description;
-  }
-
-  get cost() {
-    return this.#cost;
-  }
-
-  get value() {
-    return this.#value;
-  }
-
-  get multiplier() {
-    return this.multiplier;
-  }
-
-  set name(value) {
-    if (typeof value === "string") {
-      this.#name = value;
-    } else {
-      throw Error("value is not a string");
-    }
-  }
-
-  set uses(value) {
-    if (typeof value === "function") {
-      this.#uses = value;
-    } else {
-      throw Error("value is not a function");
-    }
-  }
-
-  set description(value) {
-    if (typeof value === "string") {
-      this.#description = value;
-    } else {
-      throw Error("value is not a string");
-    }
-  }
-
-  set cost(value) {
-    if (typeof value === "number") {
-      this.#cost = value;
-    } else {
-      throw Error("value is not a number");
-    }
-  }
-
-  set value(value) {
-    if (typeof value === "number") {
-      this.#value = value;
-    } else {
-      throw Error("value is not a number");
-    }
-  }
-
-  set multiplier(value) {
-    if (typeof value === "number") {
-      this.#multiplier = value;
-    } else {
-      throw Error("value is not a number");
-    }
-  }
-
   executeUse(i) {
     this.uses[i].action();
   }
 }
 
 export class Location {
-  #name;
-  #description;
-  #connections;
+  name;
+  description;
+  connections;
+  npcs;
 
-  constructor(name, description, connections = []) {
+  constructor(name, description, connections = [], npcs, events) {
     this.name = name;
     this.description = description;
     this.connections = connections;
-  }
-
-  set name(value) {
-    if (typeof value === "string") {
-      this.#name = value;
-    } else {
-      throw Error("value is not a string");
-    }
-  }
-
-  set description(value) {
-    if (typeof value === "string") {
-      this.#description = value;
-    } else {
-      throw Error("value is not a string");
-    }
-  }
-
-  set connection(value) {
-    if (value[i] instanceof location) {
-      this.#connections.push(value[i]);
-    } else {
-      throw Error("value is not an instance of location");
-    }
+    this.npcs = npcs;
+    this.events = events;
   }
 
   addConnections(value) {
@@ -314,11 +96,11 @@ export class Location {
 }
 
 export class NPC {
-  #name;
-  #location_id;
-  #item_ids;
-  #event_id;
-  #dialogue;
+  name;
+  location_id;
+  item_ids;
+  event_id;
+  dialogue;
 
   constructor(name, location_id, item_ids, event_id, dialogue) {
     this.name = name;
@@ -327,50 +109,14 @@ export class NPC {
     this.event_id = event_id;
     this.dialogue = dialogue;
   }
-
-  get name() {
-    return this.#name;
-  }
-
-  get location_id() {
-    return this.#location_id;
-  }
-
-  get item_ids() {
-    return this.#item_ids;
-  }
-
-  get event_id() {
-    return this.#event_id;
-  }
-
-  get dialogue() {
-    return this.#dialogue;
-  }
-
-  set name(value) {
-    if (typeof value === "string") {
-      this.#name = value;
-    } else {
-      throw Error("Value is not a string");
-    }
-  }
-
-  set name(value) {
-    if (typeof value === "string") {
-      this.#name = value;
-    } else {
-      throw Error("Value is not a string");
-    }
-  }
 }
 
 export class Enemy {
-  #name;
-  #health;
-  #max_health;
-  #energy;
-  #max_energy;
+  name;
+  health;
+  max_health;
+  energy;
+  max_energy;
 
   constructor(name, health, max_health, energy, max_energy) {
     this.name = name;
@@ -407,44 +153,68 @@ export class Class {
 }
 
 export class Command {
-  constructor(commandKey, commandFunction) {
+  constructor(commandKey, commandFunction, displayName, displayed) {
     this.commandKey = commandKey;
     this.commandFunction = commandFunction;
+    this.displayName = displayName;
   }
   executeCommand() {
     this.commandFunction();
   }
 }
 
+export class CategoryCommand extends Command {
+  constructor(commandKey, CommandsType, displayName, displayed) {
+    super(commandKey, function () {
+      this.displayed = false;
+      for (let i = 0; i < mainPlayer.possibleCommands.length; i++) {
+        if (mainPlayer.possibleCommands[i] instanceof CommandsType) {
+          mainPlayer.possibleCommands[i].displayed = true;
+          console.log("executed");
+          console.log(mainPlayer.possibleCommands[i].displayed);
+        }
+      }
+      for (let i = 0; i < optionTexts.length; i++) {
+        optionTexts[i].textContent = "";
+      }
+      for (let i = 0; i < optionTexts.length; i++) {
+        if (
+          mainPlayer.possibleCommands[i] !== undefined &&
+          mainPlayer.possibleCommands[i].displayed == true
+        ) {
+          mainPlayer.possibleCommands[i].commandKey = i + 1;
+          optionTexts[i].textContent = `${i + 1} ${
+            mainPlayer.possibleCommands[i].displayName
+          }`;
+          // console.log(mainPlayer.possibleCommands[i].displayName);
+        } else {
+          optionTexts[i].textContent = "";
+        }
+      }
+      console.log(mainPlayer.possibleCommands);
+    });
+    this.displayName = displayName;
+  }
+}
+
 export class MoveCommand extends Command {
-  constructor(commandKey, destination) {
+  constructor(commandKey, destination, displayName, displayed) {
     super(commandKey, function () {
       mainPlayer.location = destination;
-      UpdateGame();
     });
     this.destination = destination;
+    this.displayName = displayName;
   }
 }
 
 export class ItemCommand extends Command {
-  constructor(commandKey, parentItem) {
+  constructor(commandKey, parentItem, displayName) {
     super(commandKey, function () {
       mainPlayer.selectedItem = parentItem;
       parentItem.uses();
-      UpdateGame();
     });
     this.parentItem = parentItem;
-  }
-}
-
-export class InventoryCommand extends Command {
-  constructor(commandKey) {
-    super(commandKey, function () {
-      displayConnections = false;
-      displayInventoryCommand = false;
-      displayInventory = true;
-      UpdateGame();
-    });
+    this.displayName = displayName;
   }
 }
 
