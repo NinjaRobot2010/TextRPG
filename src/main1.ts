@@ -29,7 +29,7 @@ const state = {
          hp: 100
       },
       skills: {
-         coding: 100,
+         coding: 90,
          math: 85
       }
    },
